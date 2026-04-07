@@ -1,0 +1,110 @@
+[
+  {
+    "book_id": 1,
+    "title": "Harry Potter",
+    "author": "Leo",
+    "genre": "Fantasy",
+    "price": 500.00,
+    "stock": 52,
+    "cover_url": "When I heard it was the 20th anniversary of Harry Potter I had to give drawing a book cover a try! #harrypotter #illustration #bookcover.jpeg"
+  },
+  {
+    "book_id": 2,
+    "title": "Lost Star",
+    "author": "Liya",
+    "genre": "Fiction",
+    "price": 420.00,
+    "stock": 26,
+    "cover_url": "The Lost Star and the Little Girl Tale.jpeg"
+  },
+  {
+    "book_id": 3,
+    "title": "Rapenzul",
+    "author": "Zaara",
+    "genre": "Fantasy",
+    "price": 600.00,
+    "stock": 60,
+    "cover_url": "Tales from Whispering Woods.jpeg"
+  },
+  {
+    "book_id": 4,
+    "title": "The Great Gatsby",
+    "author": "F. Scott Fitzgerald",
+    "genre": "Classic",
+    "price": 299.00,
+    "stock": 15,
+    "cover_url": "The Great Gatsby.jpeg"
+  },
+  {
+    "book_id": 5,
+    "title": "To Kill a Mockingbird",
+    "author": "Harper Lee",
+    "genre": "Classic",
+    "price": 350.00,
+    "stock": 20,
+    "cover_url": "To Kill a Mockingbird.jpeg"
+  },
+  {
+    "book_id": 6,
+    "title": "1984",
+    "author": "George Orwell",
+    "genre": "Dystopia",
+    "price": 320.00,
+    "stock": 12,
+    "cover_url": "1984.jpeg"
+  },
+  {
+    "book_id": 7,
+    "title": "Pride and Prejudice",
+    "author": "Jane Austen",
+    "genre": "Romance",
+    "price": 280.00,
+    "stock": 18,
+    "cover_url": "Pride and Prejudice.jpeg"
+  },
+  {
+    "book_id": 8,
+    "title": "The Catcher in the Rye",
+    "author": "J.D. Salinger",
+    "genre": "Coming-of-age",
+    "price": 310.00,
+    "stock": 25,
+    "cover_url": "The Catcher in the Rye.jpeg"
+  },
+  {
+    "book_id": 9,
+    "title": "The Hobbit",
+    "author": "J.R.R. Tolkien",
+    "genre": "Fantasy",
+    "price": 450.00,
+    "stock": 30,
+    "cover_url": "The Hobbit.jpeg"
+  },
+  {
+    "book_id": 10,
+    "title": "The Alchemist",
+    "author": "Paulo Coelho",
+    "genre": "Self-Help",
+    "price": 330.00,
+    "stock": 22,
+    "cover_url": "The Alchemist.jpeg"
+  },
+  {
+    "book_id": 11,
+    "title": "Sapiens",
+    "author": "Yuval Noah Harari",
+    "genre": "History",
+    "price": 499.00,
+    "stock": 8,
+    "cover_url": "Sapiens.jpeg"
+  },
+  {
+    "book_id": 12,
+    "title": "Brave New World",
+    "author": "Aldous Huxley",
+    "genre": "Dystopia",
+    "price": 380.00,
+    "stock": 16,
+    "cover_url": "Brave New World.jpeg"
+  }
+]

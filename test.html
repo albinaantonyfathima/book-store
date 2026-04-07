@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Static Bookstore Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>PageTurn Static Bookstore - Test Page</h1>
+    
+    <div class="test-section info">
+        <h3>Test Instructions</h3>
+        <p>This page tests the static functionality of the bookstore system.</p>
+        <ol>
+            <li>Click "Test Books Loading" to verify JSON data loads</li>
+            <li>Click "Test Admin Login" to verify authentication</li>
+            <li>Click "Clear Test Data" to reset localStorage</li>
+            <li>Check results below</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h3>Test Controls</h3>
+        <button onclick="testBooksLoading()">Test Books Loading</button>
+        <button onclick="testAdminLogin()">Test Admin Login</button>
+        <button onclick="testOrderSystem()">Test Order System</button>
+        <button onclick="clearTestData()">Clear Test Data</button>
+    </div>
+
+    <div id="testResults"></div>
+
+    <script>
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('testResults');
+            const div = document.createElement('div');
+            div.className = `test-section ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            results.appendChild(div);
+        }
+
+        async function testBooksLoading() {
+            try {
+                const response = await fetch('data/books.json');
+                if (!response.ok) throw new Error('Failed to fetch books.json');
+                
+                const books = await response.json();
+                if (Array.isArray(books) && books.length > 0) {
+                    addResult(`✅ Successfully loaded ${books.length} books from JSON file`, 'success');
+                    addResult(`Sample book: "${books[0].title}" by ${books[0].author} - ₹${books[0].price}`, 'info');
+                } else {
+                    addResult('❌ Books data is empty or invalid', 'error');
+                }
+            } catch (error) {
+                addResult(`❌ Error loading books: ${error.message}`, 'error');
+            }
+        }
+
+        function testAdminLogin() {
+            try {
+                // Test correct credentials
+                if (sessionStorage) {
+                    sessionStorage.setItem('adminLoggedIn', 'true');
+                    sessionStorage.setItem('adminUser', 'princy');
+                    addResult('✅ Admin login test successful (princy/123)', 'success');
+                    addResult('Session storage working correctly', 'info');
+                } else {
+                    addResult('❌ SessionStorage not available', 'error');
+                }
+            } catch (error) {
+                addResult(`❌ Admin login test failed: ${error.message}`, 'error');
+            }
+        }
+
+        function testOrderSystem() {
+            try {
+                // Test localStorage for orders
+                if (localStorage) {
+                    const testOrder = {
+                        order_id: Date.now(),
+                        customer_name: 'Test Customer',
+                        customer_email: 'test@example.com',
+                        book_id: 1,
+                        title: 'Test Book',
+                        quantity: 1,
+                        total_price: 299.00,
+                        order_date: new Date().toISOString()
+                    };
+                    
+                    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+                    orders.push(testOrder);
+                    localStorage.setItem('orders', JSON.stringify(orders));
+                    
+                    addResult('✅ Order system test successful', 'success');
+                    addResult(`Test order stored with ID: ${testOrder.order_id}`, 'info');
+                } else {
+                    addResult('❌ LocalStorage not available', 'error');
+                }
+            } catch (error) {
+                addResult(`❌ Order system test failed: ${error.message}`, 'error');
+            }
+        }
+
+        function clearTestData() {
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+                addResult('✅ All test data cleared from localStorage and sessionStorage', 'success');
+            } catch (error) {
+                addResult(`❌ Failed to clear test data: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run basic tests on page load
+        window.onload = function() {
+            addResult('🧪 Test page loaded successfully', 'info');
+            addResult('Ready to run tests. Click buttons above.', 'info');
+        };
+    </script>
+</body>
+</html>

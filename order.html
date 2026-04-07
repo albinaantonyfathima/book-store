@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Place an Order — PageTurn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink:    #1a1a2e;
+      --paper:  #faf7f2;
+      --cream:  #f0ebe0;
+      --accent: #c0392b;
+      --gold:   #d4a017;
+      --muted:  #7a7060;
+      --green:  #27ae60;
+      --radius: 14px;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; }
+
+    nav {
+      background: var(--ink);
+      padding: 0 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px; position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    }
+    .logo { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 900; color: var(--paper); }
+    .logo span { color: var(--gold); }
+    nav ul { list-style: none; display: flex; gap: 2rem; }
+    nav ul a { color: #ccc; text-decoration: none; font-size: 0.9rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; transition: color 0.2s; }
+    nav ul a:hover, nav ul a.active { color: var(--gold); }
+
+    /* ── PAGE LAYOUT ──────────────────────────────────────── */
+    .page-wrap {
+      max-width: 960px;
+      margin: 3rem auto;
+      padding: 0 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 2.5rem;
+      align-items: start;
+    }
+    @media (max-width: 700px) { .page-wrap { grid-template-columns: 1fr; } }
+
+    /* ── FORM CARD ─────────────────────────────────────────── */
+    .form-card {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: 0 4px 28px rgba(26,26,46,0.10);
+      padding: 2.5rem;
+    }
+    .form-card h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.9rem;
+      margin-bottom: 0.4rem;
+    }
+    .form-card p.subtitle { font-size: 0.9rem; color: var(--muted); margin-bottom: 2rem; }
+
+    .form-group { margin-bottom: 1.4rem; }
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ink);
+      margin-bottom: 0.4rem;
+    }
+    .input-wrap { position: relative; }
+    .input-wrap .icon {
+      position: absolute; left: 1rem; top: 50%;
+      transform: translateY(-50%); font-size: 1rem; pointer-events: none;
+    }
+    input[type="text"], input[type="email"], input[type="number"], select {
+      width: 100%;
+      padding: 0.7rem 1rem 0.7rem 2.8rem;
+      border: 2px solid #e5e0d8;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(192,57,43,0.12);
+    }
+    input.valid   { border-color: var(--green); }
+    input.invalid { border-color: var(--accent); }
+
+    .error-msg {
+      display: block;
+      margin-top: 0.4rem;
+      font-size: 0.8rem;
+      color: var(--accent);
+      min-height: 1.2em;
+      font-weight: 500;
+    }
+
+    /* Quantity row */
+    .qty-row { display: flex; align-items: center; gap: 1rem; }
+    .qty-btn {
+      width: 40px; height: 40px;
+      border: 2px solid #e5e0d8;
+      border-radius: 50%;
+      background: white;
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .qty-btn:hover { border-color: var(--accent); color: var(--accent); }
+    #quantity { text-align: center; padding-left: 1rem; max-width: 90px; }
+
+    .submit-btn {
+      width: 100%;
+      padding: 0.85rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: all 0.2s;
+      letter-spacing: 0.02em;
+    }
+    .submit-btn:hover { background: #a93226; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(192,57,43,0.35); }
+    .submit-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* ── ORDER SUMMARY CARD ────────────────────────────────── */
+    .summary-card {
+      background: var(--ink);
+      color: white;
+      border-radius: var(--radius);
+      padding: 2rem;
+      position: sticky;
+      top: 80px;
+    }
+    .summary-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .summary-row {
+      display: flex; justify-content: space-between;
+      font-size: 0.88rem; color: #bbb;
+      margin-bottom: 0.75rem;
+    }
+    .summary-row.total {
+      font-size: 1.1rem; font-weight: 700; color: white;
+      margin-top: 1rem; padding-top: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.15);
+    }
+    .summary-row span:last-child { color: white; }
+    .summary-row.total span:last-child { color: var(--gold); font-size: 1.2rem; }
+
+    /* ── SUCCESS MODAL ─────────────────────────────────────── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 200;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: white;
+      border-radius: var(--radius);
+      padding: 3rem 2.5rem;
+      text-align: center;
+      max-width: 420px;
+      width: 90%;
+      animation: popIn 0.3s ease;
+    }
+    @keyframes popIn { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .modal .check { font-size: 4rem; display: block; margin-bottom: 1rem; }
+    .modal h3 { font-family: 'Playfair Display', serif; font-size: 1.6rem; margin-bottom: 0.5rem; }
+    .modal p { color: var(--muted); margin-bottom: 0.4rem; font-size: 0.9rem; }
+    .modal p strong { color: var(--ink); }
+    .modal-btns { display: flex; gap: 1rem; margin-top: 2rem; }
+    .modal-btns a, .modal-btns button {
+      flex: 1; padding: 0.65rem; border-radius: 8px;
+      font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      text-decoration: none; text-align: center; border: none;
+    }
+    .modal-btns a { background: var(--ink); color: white; }
+    .modal-btns button { background: var(--cream); color: var(--ink); }
+
+    /* ── ERROR TOAST ───────────────────────────────────────── */
+    .toast {
+      display: none;
+      position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      background: #922b21; color: white;
+      padding: 1rem 2rem; border-radius: 50px;
+      font-size: 0.9rem; font-weight: 600;
+      z-index: 300; animation: slideUp 0.3s ease;
+    }
+    .toast.show { display: block; }
+    @keyframes slideUp { from { transform: translateX(-50%) translateY(20px); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="logo">Page<span>Turn</span></div>
+    <ul>
+      <li><a href="index.html">Catalog</a></li>
+      <li><a href="order.html" class="active">Order</a></li>
+      <li><a href="admin.html">Admin</a></li>
+    </ul>
+  </nav>
+
+  <div class="page-wrap">
+
+    <!-- ORDER FORM -->
+    <div class="form-card">
+      <h2>Place Your Order</h2>
+      <p class="subtitle">Fill in the details below to order a book.</p>
+
+      <form id="orderForm" novalidate>
+
+        <div class="form-group">
+          <label for="customerName">Full Name</label>
+          <div class="input-wrap">
+            <span class="icon"></span>
+            <input type="text" id="customerName" name="customer_name" placeholder="e.g. Priya Sharma" autocomplete="name">
+          </div>
+          <span class="error-msg" id="nameError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="customerEmail">Email Address</label>
+          <div class="input-wrap">
+            <span class="icon"></span>
+            <input type="email" id="customerEmail" name="customer_email" placeholder="you@example.com" autocomplete="email">
+          </div>
+          <span class="error-msg" id="emailError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="bookSelect">Select Book</label>
+          <div class="input-wrap">
+            <span class="icon"></span>
+            <select id="bookSelect" name="book_id">
+              <option value="">— Loading books… —</option>
+            </select>
+          </div>
+          <span class="error-msg" id="bookError"></span>
+        </div>
+
+        <div class="form-group">
+          <label>Quantity</label>
+          <div class="qty-row">
+            <button type="button" class="qty-btn" id="decBtn">−</button>
+            <div class="input-wrap" style="flex:1">
+              <span class="icon">#</span>
+              <input type="number" id="quantity" name="quantity" value="1" min="1" max="100">
+            </div>
+            <button type="button" class="qty-btn" id="incBtn">+</button>
+          </div>
+          <span class="error-msg" id="qtyError"></span>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">Confirm Order →</button>
+      </form>
+    </div>
+
+    <!-- ORDER SUMMARY -->
+    <div class="summary-card">
+      <h3> Order Summary</h3>
+      <div class="summary-row"><span>Customer</span><span id="sumName">—</span></div>
+      <div class="summary-row"><span>Book</span><span id="sumBook">—</span></div>
+      <div class="summary-row"><span>Unit Price</span><span id="sumPrice">—</span></div>
+      <div class="summary-row"><span>Quantity</span><span id="sumQty">—</span></div>
+      <div class="summary-row total"><span>Total</span><span id="sumTotal">₹0.00</span></div>
+    </div>
+  </div>
+
+  <!-- SUCCESS MODAL -->
+  <div class="modal-overlay" id="successModal">
+    <div class="modal">
+      <span class="check"></span>
+      <h3>Order Confirmed!</h3>
+      <p>Thank you, <strong id="modalName"></strong>!</p>
+      <p>You ordered <strong id="modalQty"></strong> × <strong id="modalBook"></strong></p>
+      <p style="margin-top:0.5rem; font-size:1rem; font-weight:700; color:#27ae60" id="modalTotal"></p>
+      <div class="modal-btns">
+        <a href="index.html">Back to Catalog</a>
+        <button onclick="resetForm()">New Order</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ERROR TOAST -->
+  <div class="toast" id="errorToast"></div>
+
+  <!-- ── JAVASCRIPT ──────────────────────────────────────── -->
+  <script>
+    let booksData = [];
+
+    // ── Load books into dropdown ────────────────────────────
+    async function loadBooks() {
+      try {
+        // Embedded book data
+        booksData = [
+          {
+            "book_id": 1,
+            "title": "Harry Potter",
+            "author": "Leo",
+            "genre": "Fantasy",
+            "price": 500.00,
+            "stock": 52,
+            "cover_url": "When I heard it was the 20th anniversary of Harry Potter I had to give drawing a book cover a try! #harrypotter #illustration #bookcover.jpeg"
+          },
+          {
+            "book_id": 2,
+            "title": "Lost Star",
+            "author": "Liya",
+            "genre": "Fiction",
+            "price": 420.00,
+            "stock": 26,
+            "cover_url": "The Lost Star and the Little Girl Tale.jpeg"
+          },
+          {
+            "book_id": 3,
+            "title": "Rapenzul",
+            "author": "Zaara",
+            "genre": "Fantasy",
+            "price": 600.00,
+            "stock": 60,
+            "cover_url": "Tales from Whispering Woods.jpeg"
+          },
+          {
+            "book_id": 4,
+            "title": "The Great Gatsby",
+            "author": "F. Scott Fitzgerald",
+            "genre": "Classic",
+            "price": 299.00,
+            "stock": 15,
+            "cover_url": "The Great Gatsby.jpeg"
+          },
+          {
+            "book_id": 5,
+            "title": "To Kill a Mockingbird",
+            "author": "Harper Lee",
+            "genre": "Classic",
+            "price": 350.00,
+            "stock": 20,
+            "cover_url": "To Kill a Mockingbird.jpeg"
+          },
+          {
+            "book_id": 6,
+            "title": "1984",
+            "author": "George Orwell",
+            "genre": "Dystopia",
+            "price": 320.00,
+            "stock": 12,
+            "cover_url": "1984.jpeg"
+          },
+          {
+            "book_id": 7,
+            "title": "Pride and Prejudice",
+            "author": "Jane Austen",
+            "genre": "Romance",
+            "price": 280.00,
+            "stock": 18,
+            "cover_url": "Pride and Prejudice.jpeg"
+          },
+          {
+            "book_id": 8,
+            "title": "The Catcher in the Rye",
+            "author": "J.D. Salinger",
+            "genre": "Coming-of-age",
+            "price": 310.00,
+            "stock": 25,
+            "cover_url": "The Catcher in the Rye.jpeg"
+          },
+          {
+            "book_id": 9,
+            "title": "The Hobbit",
+            "author": "J.R.R. Tolkien",
+            "genre": "Fantasy",
+            "price": 450.00,
+            "stock": 30,
+            "cover_url": "The Hobbit.jpeg"
+          },
+          {
+            "book_id": 10,
+            "title": "The Alchemist",
+            "author": "Paulo Coelho",
+            "genre": "Self-Help",
+            "price": 330.00,
+            "stock": 22,
+            "cover_url": "The Alchemist.jpeg"
+          },
+          {
+            "book_id": 11,
+            "title": "Sapiens",
+            "author": "Yuval Noah Harari",
+            "genre": "History",
+            "price": 499.00,
+            "stock": 8,
+            "cover_url": "Sapiens.jpeg"
+          },
+          {
+            "book_id": 12,
+            "title": "Brave New World",
+            "author": "Aldous Huxley",
+            "genre": "Dystopia",
+            "price": 380.00,
+            "stock": 16,
+            "cover_url": "Brave New World.jpeg"
+          }
+        ];
+        
+        const sel  = document.getElementById('bookSelect');
+        sel.innerHTML = '<option value="">— Choose a book —</option>';
+
+        booksData.forEach(b => {
+          if (b.stock > 0) {
+            const opt = document.createElement('option');
+            opt.value       = b.book_id;
+            opt.textContent = `${b.title} — ₹${b.price.toFixed(2)} (${b.stock} left)`;
+            opt.dataset.price = b.price;
+            opt.dataset.title = b.title;
+            opt.dataset.stock = b.stock;
+            sel.appendChild(opt);
+          }
+        });
+
+        // Pre-select if ?book=ID is in URL
+        const urlBook = new URLSearchParams(location.search).get('book');
+        if (urlBook) { sel.value = urlBook; updateSummary(); }
+
+      } catch {
+        document.getElementById('bookSelect').innerHTML =
+          '<option value=""> Could not load books</option>';
+      }
+    }
+
+    // ── Live summary update ─────────────────────────────────
+    function updateSummary() {
+      const name = document.getElementById('customerName').value.trim() || '—';
+      const sel  = document.getElementById('bookSelect');
+      const qty  = parseInt(document.getElementById('quantity').value) || 0;
+      const opt  = sel.options[sel.selectedIndex];
+      const price = parseFloat(opt?.dataset?.price || 0);
+      const title = opt?.dataset?.title || '—';
+
+      document.getElementById('sumName').textContent  = name;
+      document.getElementById('sumBook').textContent  = title !== '—' ? title : '—';
+      document.getElementById('sumPrice').textContent = price ? `₹${price.toFixed(2)}` : '—';
+      document.getElementById('sumQty').textContent   = qty || '—';
+      document.getElementById('sumTotal').textContent = price && qty ? `₹${(price * qty).toFixed(2)}` : '₹0.00';
+    }
+
+    // ── Quantity buttons ─────────────────────────────────────
+    document.getElementById('decBtn').addEventListener('click', () => {
+      const q = document.getElementById('quantity');
+      if (parseInt(q.value) > 1) { q.value = parseInt(q.value) - 1; updateSummary(); }
+    });
+    document.getElementById('incBtn').addEventListener('click', () => {
+      const q = document.getElementById('quantity');
+      if (parseInt(q.value) < 100) { q.value = parseInt(q.value) + 1; updateSummary(); }
+    });
+
+    ['customerName','customerEmail','bookSelect','quantity'].forEach(id => {
+      document.getElementById(id).addEventListener('input', updateSummary);
+      document.getElementById(id).addEventListener('change', updateSummary);
+    });
+
+    // ── CLIENT-SIDE VALIDATION ─────────────────────────────
+    function validateField(id, errorId, validationFn) {
+      const el  = document.getElementById(id);
+      const err = document.getElementById(errorId);
+      const msg = validationFn(el.value.trim());
+      err.textContent = msg;
+      el.classList.toggle('valid',   !msg);
+      el.classList.toggle('invalid', !!msg);
+      return !msg;
+    }
+
+    const validators = {
+      customerName:  v => v.length < 2 ? 'Please enter your full name (min. 2 characters).' : '',
+      customerEmail: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? '' : 'Please enter a valid email address.',
+      bookSelect:    v => v ? '' : 'Please select a book.',
+      quantity:      v => {
+        const n = parseInt(v);
+        return (isNaN(n) || n < 1 || n > 100) ? 'Quantity must be a whole number between 1 and 100.' : '';
+      }
+    };
+
+    // Live validation on blur
+    document.getElementById('customerName').addEventListener('blur',  () => validateField('customerName',  'nameError',  validators.customerName));
+    document.getElementById('customerEmail').addEventListener('blur', () => validateField('customerEmail', 'emailError', validators.customerEmail));
+    document.getElementById('bookSelect').addEventListener('change',  () => validateField('bookSelect',    'bookError',  validators.bookSelect));
+    document.getElementById('quantity').addEventListener('blur',      () => validateField('quantity',      'qtyError',   validators.quantity));
+
+    // ── FORM SUBMIT ─────────────────────────────────────────
+    document.getElementById('orderForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      // Validate all fields
+      const ok = [
+        validateField('customerName',  'nameError',  validators.customerName),
+        validateField('customerEmail', 'emailError', validators.customerEmail),
+        validateField('bookSelect',    'bookError',  validators.bookSelect),
+        validateField('quantity',      'qtyError',   validators.quantity)
+      ].every(Boolean);
+
+      if (!ok) return;
+
+      const btn = document.getElementById('submitBtn');
+      btn.disabled    = true;
+      btn.textContent = 'Processing…';
+
+      const formData = new FormData(this);
+      const name = formData.get('customer_name');
+      const email = formData.get('customer_email');
+      const bookId = parseInt(formData.get('book_id'));
+      const qty = parseInt(formData.get('quantity'));
+
+      try {
+        // Find the book and check stock
+        const book = booksData.find(b => b.book_id === bookId);
+        if (!book) {
+          showToast('Selected book not found.');
+          return;
+        }
+
+        if (qty > book.stock) {
+          showToast(`Only ${book.stock} copies of "${book.title}" are available.`);
+          return;
+        }
+
+        // Calculate total
+        const total = book.price * qty;
+
+        // Create order object
+        const order = {
+          order_id: Date.now(), // Simple timestamp-based ID
+          customer_name: name,
+          customer_email: email,
+          book_id: bookId,
+          title: book.title,
+          quantity: qty,
+          total_price: total,
+          order_date: new Date().toISOString()
+        };
+
+        // Save order to localStorage (for demo purposes)
+        let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        orders.push(order);
+        localStorage.setItem('orders', JSON.stringify(orders));
+
+        // Update book stock in books data
+        book.stock -= qty;
+        
+        // Update the books.json file (simulated - in real app this would be server-side)
+        // For static demo, we'll update localStorage
+        localStorage.setItem('booksData', JSON.stringify(booksData));
+
+        // Show success modal
+        document.getElementById('modalName').textContent  = name;
+        document.getElementById('modalBook').textContent  = book.title;
+        document.getElementById('modalQty').textContent   = qty;
+        document.getElementById('modalTotal').textContent = 'Total: ₹' + total.toFixed(2);
+        document.getElementById('successModal').classList.add('show');
+
+      } catch (error) {
+        showToast('Error processing order. Please try again.');
+        console.error('Order processing error:', error);
+      } finally {
+        btn.disabled    = false;
+        btn.textContent = 'Confirm Order →';
+      }
+    });
+
+    function showToast(msg) {
+      const t = document.getElementById('errorToast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 4000);
+    }
+
+    function resetForm() {
+      document.getElementById('orderForm').reset();
+      document.getElementById('successModal').classList.remove('show');
+      ['customerName','customerEmail','bookSelect','quantity'].forEach(id => {
+        const el = document.getElementById(id);
+        el.classList.remove('valid','invalid');
+      });
+      document.querySelectorAll('.error-msg').forEach(el => el.textContent = '');
+      updateSummary();
+    }
+
+    loadBooks();
+  </script>
+</body>
+</html>
